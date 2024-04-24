@@ -19,6 +19,7 @@ const receiverName = ref(route.params.name)
 console.log(receiverName.value)
 const user = ref(null)
 const showMessage = ref(false)
+const isTyping = ref(false)
 
 const chatPanel = ref(null)
 
@@ -85,6 +86,32 @@ const sendMessage = () => {
   }
 }
 
+const typing = () => {
+  socket.emit('isTyping', receiverName.value)
+}
+
+const typingStoped = () => {
+  socket.emit('typingStoped', receiverName.value)
+}
+
+let typingTimeout
+
+socket.on('isTyping', () => {
+  console.log('Typing')
+  isTyping.value = true
+
+  clearTimeout(typingTimeout)
+  typingTimeout = setTimeout(() => {
+    console.log('Typing stopped')
+    isTyping.value = false
+  }, 4000)
+})
+
+socket.on('typingStoped', () => {
+  console.log('Typing stopped')
+  isTyping.value = false
+})
+
 const saveMessageToDatabase = async (receiver, message) => {
   try {
     console.log(receiver, message)
@@ -121,7 +148,8 @@ const popUp = () => {
     <div class="head">
       <i class="fa-solid fa-chevron-left pa-2" @click="router.push('/')"></i>
       <div class="dp"></div>
-      <span class="text-white">{{ route.params.name }}</span>
+      <span class="text-white">{{ route.params.name }} </span>
+      <p class="typing" v-show="isTyping">typing....</p>
     </div>
     <!-- <v-text-field
       type="text"
@@ -155,6 +183,8 @@ const popUp = () => {
     </div>
     <div class="input-area pr-0 pl-5">
       <v-textarea
+        @input="typing"
+        @blur="typingStoped"
         placeholder="Type a message...."
         rows="1"
         hide-details
@@ -298,6 +328,11 @@ const popUp = () => {
   width: 100%;
   background-color: #2f5071;
   color: #fff;
+}
+
+.typing {
+  font-size: 17px;
+  color: rgb(150, 246, 5);
 }
 
 /*.content {
