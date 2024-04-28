@@ -1,13 +1,11 @@
 <script setup>
+import NavBar from './components/NavBar.vue'
 </script>
 
 <template>
   <v-app>
-    <!-- <h3>head</h3> -->
-    <nav></nav>
-
+    <NavBar />
     <RouterView />
-    <!-- <h4>footer</h4> -->
   </v-app>
 </template>
 
