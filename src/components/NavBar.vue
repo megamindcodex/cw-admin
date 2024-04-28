@@ -6,8 +6,9 @@ import { useRoute, useRouter } from 'vue-router'
 // import Logo from '@/components/Logo.vue'
 import ProfileDP from '../components/ProfileDP.vue'
 import { useUserStore } from '../stores/userStore'
-const route = useRoute()
+const route = ref(useRoute())
 const router = useRouter()
+console.log(route.value.fullPath)
 const drawer = ref(false)
 const userStore = useUserStore()
 const token = ref(null)
@@ -57,7 +58,7 @@ watch(
 </script>
 
 <template>
-  <div class="head px-2" v-show="route.path !== '/chatRoom'">
+  <div class="head px-2" v-show="route.path !== `/chatRoom/${route.params.name}`">
     <!-- <RouterLink to="/" class="logo-link"><Logo /></RouterLink> -->
     <svg
       xmlns="http://www.w3.org/2000/svg"
