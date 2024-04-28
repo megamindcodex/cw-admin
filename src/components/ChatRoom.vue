@@ -20,6 +20,8 @@ console.log(receiverName.value)
 const user = ref(null)
 const showMessage = ref(false)
 const isTyping = ref(false)
+const isLoading = ref(false)
+const noConvo = ref(true)
 
 const chatPanel = ref(null)
 
@@ -33,6 +35,7 @@ const scrollToLastMessage = () => {
 
 // listen for incoming messages
 onMounted(async () => {
+  isLoading.value = true
   await userStore.getUserData()
 
   user.value = userStore.user
@@ -48,8 +51,13 @@ onMounted(async () => {
 
   if (conversation) {
     console.log(conversation.messages)
+    noConvo.value = false
+    isLoading.value = false
     messages.value.push(...conversation.messages)
     scrollToLastMessage()
+  } else {
+    noConvo.value = true
+    isLoading.value = false
   }
 
   socket.emit('join', userName)
@@ -78,6 +86,7 @@ const sendMessage = () => {
     console.log(message)
 
     messages.value.push(message)
+    noConvo.value = false
     scrollToLastMessage()
     socket.emit('message', receiverName.value, message)
     // console.log(`${receiverName.value}: ${message}`);
@@ -180,6 +189,12 @@ const popUp = () => {
           <span>{{ message.message }}</span>
         </div>
       </div>
+    </div>
+    <div class="chat-panel" v-if="noConvo">
+      <span class="no-chat-txt">No chats available!</span>
+    </div>
+    <div v-show="isLoading" class="chat-panel isLoading">
+      <span class="loading-txt">Loading chats....</span>
     </div>
     <div class="input-area pr-0 pl-5">
       <v-textarea
@@ -336,6 +351,26 @@ const popUp = () => {
   color: rgb(150, 246, 5);
 }
 
+.isLoading {
+  position: relative;
+  top: -50%;
+  left: -50%;
+  transform: translate(50%, 50%);
+}
+
+.no-chat-txt {
+  color: grey;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.loading-txt {
+  color: green;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+}
 /*.content {
   background-color: green;
   width: max-content;
