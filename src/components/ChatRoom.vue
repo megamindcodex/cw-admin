@@ -155,7 +155,7 @@ const popUp = () => {
   <div class="popUp" v-if="showMessage">message saved to database successfully</div>
   <div class="container">
     <div class="head">
-      <i class="fa-solid fa-chevron-left pa-2" @click="router.push('/')"></i>
+      <i class="fa-solid fa-chevron-left pa-2" @click="router.go(-1)"></i>
       <div class="dp"></div>
       <span class="text-white">{{ route.params.name }} </span>
       <p class="typing" v-show="isTyping">typing....</p>

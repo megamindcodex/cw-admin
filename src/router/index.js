@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import SignupView from '@/views/SignupView.vue'
 import LoginView from '@/views/LoginView.vue'
 import AllUserView from '@/views/AllUserView.vue'
 import ChatRoom from '@/components/ChatRoom.vue'
@@ -18,11 +17,6 @@ const router = createRouter({
       path: '/allusers',
       name: 'allusers',
       component: AllUserView
-    },
-    {
-      path: '/signup',
-      name: 'signup',
-      component: SignupView
     },
     {
       path: '/login',

@@ -2,19 +2,26 @@
 <style scoped>
 </style>
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { cw_endpoint } from '../constant/endpoint'
 import { useCookieStore } from '../stores/cookieStore'
+import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const cookieStore = useCookieStore()
+const userStore = useUserStore()
 
-const email = ref('')
+const email = ref('management@gmail.com')
 const password = ref('')
 const visible = ref(false)
 const isLoading = ref(false)
+
+onMounted(() => {
+  const cookieName = ref('token')
+  userStore.getTokenFromCookies(cookieName)
+})
 
 const submitForm = async () => {
   try {
@@ -30,6 +37,7 @@ const submitForm = async () => {
       // call the setCookies function from the cookie store
       cookieStore.setCookies(res.data.token)
       isLoading.value = false
+      userStore.isLoggedIn = true
       router.push('/')
     } else {
       return 'Login Error'
@@ -43,9 +51,9 @@ const submitForm = async () => {
 <template>
   <div class="container mt-10">
     <v-form @submit.prevent="submitForm" class="px-3">
-      <div class="form-group">
+      <!-- <div class="form-group">
         <v-text-field type="email" variant="outlined" placeholder="email" v-model="email" />
-      </div>
+      </div> -->
       <div class="form-group pass-input">
         <v-text-field
           :type="visible ? 'text' : 'password'"
@@ -69,10 +77,6 @@ const submitForm = async () => {
           ></v-progress-circular>
           <span v-show="!isLoading">sign in</span>
         </button>
-      </div>
-      <div class="mt-4">
-        Don't have an account?
-        <RouterLink to="/signup" class="text-green text-decoration-none">Sing up</RouterLink>
       </div>
     </v-form>
   </div>

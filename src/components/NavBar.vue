@@ -1,17 +1,20 @@
 
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 // import Logo from '@/components/Logo.vue'
 import ProfileDP from '../components/ProfileDP.vue'
 import { useUserStore } from '../stores/userStore'
+import { useCookieStore } from '@/stores/cookieStore'
 const route = ref(useRoute())
 const router = useRouter()
 console.log(route.value.fullPath)
 const drawer = ref(false)
 const userStore = useUserStore()
+const cookieStore = useCookieStore()
 const token = ref(null)
+const isLoggedIn = ref(false)
 
 const navRoutes = ref([
   {
@@ -23,10 +26,6 @@ const navRoutes = ref([
     url: 'allusers'
   },
   {
-    name: 'signup',
-    url: 'signup'
-  },
-  {
     name: 'login',
     url: 'login'
   }
@@ -35,8 +34,30 @@ const navRoutes = ref([
 onMounted(async () => {
   const cookieName = 'token'
   const result = await userStore.getTokenFromCookies(cookieName)
-  token.value = result
-  console.log(result)
+
+  if (result) {
+    isLoggedIn.value = userStore.isLoggedIn
+    console.log(isLoggedIn.value)
+  } else {
+    isLoggedIn.value = false
+    console.log(isLoggedIn.value)
+  }
+
+  // Watch for changes in userStore.isLoggedIn and update isLoggedIn accordingly
+  watch(
+    () => userStore.isLoggedIn,
+    (newValue) => {
+      isLoggedIn.value = newValue
+      console.log(isLoggedIn.value)
+    }
+  )
+
+  if (result) {
+    token.value = result
+    console.log(result)
+  } else {
+    isLoggedIn.value = false
+  }
 })
 
 const navigateTo = (routeName) => {
@@ -85,13 +106,17 @@ watch(
           :key="nav.name"
           @click="navigateTo(nav.url)"
         >
-          <span v-if="token">
-            <span v-show="nav.name !== 'login' && nav.name !== 'signup'">{{ nav.name }}</span>
+          <span v-if="isLoggedIn">
+            <span v-show="nav.name !== 'login'">{{ nav.name }}</span>
           </span>
           <span v-else>
-            <span>{{ nav.name }}</span>
+            <span v-show="nav.name === 'login'">{{ nav.name }}</span>
           </span>
         </span>
+      </div>
+
+      <div class="btn" v-if="isLoggedIn" @click="cookieStore.deleteToken('token')">
+        <button class="py-1">log out</button>
       </div>
     </v-navigation-drawer>
   </div>
@@ -139,5 +164,20 @@ watch(
 .logo-link {
   text-decoration: none;
   color: #000;
+}
+
+.btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn button {
+  width: 50%;
+  font-size: 18px;
+  font-weight: 600;
+  color: rgb(228, 89, 89);
+  border: 1px solid #000;
 }
 </style>

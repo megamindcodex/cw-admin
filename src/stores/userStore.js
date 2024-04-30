@@ -24,6 +24,12 @@ export const useUserStore = defineStore('userStore', {
         const foundCookie = cookies.find((cookie) => cookie.name === cookieName)
 
         // If the cookie is found with the specified name
+        if (foundCookie) {
+          this.isLoggedIn === true
+        } else {
+          this.isLoggedIn = false
+        }
+        console.log(this.isLoggedIn)
         return foundCookie ? decodeURIComponent(foundCookie.value) : null
       } catch (err) {
         console.log('Error getting token')
