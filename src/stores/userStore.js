@@ -10,7 +10,8 @@ export const useUserStore = defineStore('userStore', {
     isLoggedIn: false,
     messages: null,
     cookieName: 'token',
-    conversations: []
+    conversations: [null],
+    isLoading: false
   }),
   actions: {
     async getTokenFromCookies(cookieName) {
@@ -23,13 +24,13 @@ export const useUserStore = defineStore('userStore', {
         // Find the cokie with the specified name
         const foundCookie = cookies.find((cookie) => cookie.name === cookieName)
 
-        // If the cookie is found with the specified name
         if (foundCookie) {
           this.isLoggedIn === true
         } else {
           this.isLoggedIn = false
         }
         console.log(this.isLoggedIn)
+        // If the cookie is found with the specified name
         return foundCookie ? decodeURIComponent(foundCookie.value) : null
       } catch (err) {
         console.log('Error getting token')
@@ -119,12 +120,15 @@ export const useUserStore = defineStore('userStore', {
           }
         }
 
+        this.isLoading = true
         const res = await axios.get(`${cw_endpoint}/get_conversations`, config)
-
         if (res.status === 200) {
           this.conversations = res.data
+          this.isLoading = false
           console.log(this.conversations)
           return res.data
+        } else {
+          this.conversations = null
         }
       } catch (err) {
         console.log('Error getting chats', err, err.message)

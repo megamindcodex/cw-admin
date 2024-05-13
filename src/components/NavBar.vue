@@ -43,15 +43,6 @@ onMounted(async () => {
     console.log(isLoggedIn.value)
   }
 
-  // Watch for changes in userStore.isLoggedIn and update isLoggedIn accordingly
-  watch(
-    () => userStore.isLoggedIn,
-    (newValue) => {
-      isLoggedIn.value = newValue
-      console.log(isLoggedIn.value)
-    }
-  )
-
   if (result) {
     token.value = result
     console.log(result)
@@ -70,6 +61,15 @@ const activeRoute = (routeName) => {
   if (currentRoute.value === routeName) return currentRoute
 }
 
+// Watch for changes in userStore.isLoggedIn and update isLoggedIn accordingly
+watch(
+  () => userStore.isLoggedIn,
+  (newValue) => {
+    isLoggedIn.value = newValue
+    console.log(isLoggedIn.value)
+  }
+)
+
 watch(
   () => route.name,
   (newRoute) => {
@@ -79,7 +79,7 @@ watch(
 </script>
 
 <template>
-  <div class="head px-2" v-show="route.path !== `/chatRoom/${route.params.name}`">
+  <div class="head px-2" v-show="route.path !== `/chatRoom/${route.params.name}` && isLoggedIn">
     <!-- <RouterLink to="/" class="logo-link"><Logo /></RouterLink> -->
     <svg
       xmlns="http://www.w3.org/2000/svg"

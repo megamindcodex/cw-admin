@@ -11,6 +11,7 @@ const userStore = useUserStore()
 
 const router = useRouter()
 const route = useRoute()
+const currentRoute = ref()
 console.log(route)
 const messages = ref([])
 const newMessage = ref('')
@@ -22,6 +23,7 @@ const showMessage = ref(false)
 const isTyping = ref(false)
 const isLoading = ref(false)
 const noConvo = ref(true)
+const hasRead = ref(false)
 
 const chatPanel = ref(null)
 
@@ -69,6 +71,10 @@ onMounted(async () => {
     scrollToLastMessage()
   })
 })
+
+if (route.params.name === receiverName) {
+  change_hasRead_to_true(receiverName.value, userStore.userId)
+}
 
 watch(messages, () => {
   scrollToLastMessage()
@@ -149,13 +155,41 @@ const popUp = () => {
     showMessage.value = true
   }, 3000)
 }
+
+const change_hasRead_to_true = async (receiverName) => {
+  try {
+    // console.log(receiverName, userId)
+    const cookieName = ref('token')
+    const token = await userStore.getTokenFromCookies(cookieName.value)
+
+    if (!token) {
+      console.log('token is undefined')
+      return
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+    console.log(config)
+
+    const res = await axios.put(`${cw_endpoint}/change_hasRead_to_true`, { receiverName }, config)
+    if (res.status === 200) {
+      hasRead.value = res.data.hasRead
+      console.log(res.data.hasRead)
+    }
+  } catch (err) {
+    console.error('Error changing hasRead to true:', err, err.message)
+  }
+}
 </script>
 
 <template>
   <div class="popUp" v-if="showMessage">message saved to database successfully</div>
   <div class="container">
     <div class="head">
-      <i class="fa-solid fa-chevron-left pa-2" @click="router.go(-1)"></i>
+      <i class="fa-solid fa-chevron-left pa-2" @click="router.push('/')"></i>
       <div class="dp"></div>
       <span class="text-white">{{ route.params.name }} </span>
       <p class="typing" v-show="isTyping">typing....</p>
@@ -186,7 +220,10 @@ const popUp = () => {
             msg_txt: message.sender !== userStore.user.userName
           }"
         >
-          <span>{{ message.message }}</span>
+          <span class="d-flex flex-column">
+            <p>{{ message.message }}</p>
+            <small>{{ message.timeStamp }}</small>
+          </span>
         </div>
       </div>
     </div>

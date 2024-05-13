@@ -6,15 +6,21 @@ import { onMounted, ref } from 'vue'
 
 const userStore = useUserStore()
 const user = userStore.user
+const noContacts = ref(false)
 // const contactName = ref()
 
 onMounted(async () => {
   await userStore.getConversations()
+  if (userStore.conversations.length > 0) {
+    noContacts.value = true
+  } else {
+    noContacts.value = false
+  }
 })
 </script>
 
 <template>
-  <div class="container pt-8 px-2" v-if="userStore.conversations">
+  <div class="container pt-8 px-2" v-if="noContacts">
     <RouterLink
       v-for="contact in userStore.conversations"
       :key="contact._id"
@@ -24,11 +30,15 @@ onMounted(async () => {
       <v-card-title>
         {{ contact.users[1] }}
       </v-card-title>
+      <v-badge v-show="!contact.hasRead" inline color="green-accent-4" class="msg_badge"> </v-badge>
     </RouterLink>
-    <RouterLink to="/allusers" class="new-chat pa-4 mr-5"
-      ><i class="fa-solid fa-plus"></i
-    ></RouterLink>
   </div>
+  <RouterLink to="/allusers" class="new-chat pa-4 mr-5"
+    ><i class="fa-solid fa-plus"></i
+  ></RouterLink>
+  <div v-if="!noContacts">Chat contacts appear here</div>
+
+  <div v-show="userStore.isLoading">chats Loading</div>
 </template>
 
 <style scoped>
@@ -48,6 +58,7 @@ onMounted(async () => {
 }
 
 .userName {
+  position: relative;
   width: 100%;
   text-decoration: none;
   color: #000;
@@ -78,4 +89,10 @@ onMounted(async () => {
 /* .new-chat:hover .fa-plus {
   color: #000;
 } */
+
+.msg_badge {
+  position: absolute;
+  top: 0.3rem;
+  right: 0;
+}
 </style>
