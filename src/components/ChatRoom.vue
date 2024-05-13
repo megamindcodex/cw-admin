@@ -450,15 +450,4 @@ const change_hasRead_to_true = async (receiverName) => {
 
 
 
-    <!-- <div class="chat-panel" v-else>
-      <div class="no-chat-txt d-flex flex-column mt-10">
-        <span class="text-h6 font-weight-bold"
-          >start a chat with our customer service to purchase a card of your
-          choice.</span
-        >
-        <span class="text-h6 font-weight-medium"
-          >and yes fell free to ask any question concerning purchaseing a
-          membership card</span
-        >
-      </div>
-    </div>
+ 
