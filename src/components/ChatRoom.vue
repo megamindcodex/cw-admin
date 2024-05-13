@@ -11,20 +11,16 @@ const userStore = useUserStore()
 
 const router = useRouter()
 const route = useRoute()
-const currentRoute = ref()
-console.log(route)
 const messages = ref([])
 const newMessage = ref('')
 const socket = io(socektIo_endpoint)
 const receiverName = ref(route.params.name)
-console.log(receiverName.value)
 const user = ref(null)
 const showMessage = ref(false)
 const isTyping = ref(false)
 const isLoading = ref(false)
 const noConvo = ref(true)
 const hasRead = ref(false)
-
 const chatPanel = ref(null)
 
 const scrollToLastMessage = () => {
@@ -33,6 +29,22 @@ const scrollToLastMessage = () => {
       chatPanel.value.scrollTop = chatPanel.value.scrollHeight
     })
   }
+}
+
+const getCurrentTime = () => {
+  const now = new Date()
+  let hours = now.getHours()
+  let minutes = now.getMinutes()
+  let ampm = hours >= 12 ? 'pm' : 'am'
+
+  // Convert hours from 24-hour format to 12-hour format
+  hours = hours % 12
+  hours = hours ? hours : 12 // 0 should be converted to 12
+
+  // Add leading zero to minutes if less than 10
+  minutes = minutes < 10 ? '0' + minutes : minutes
+
+  return `${hours}:${minutes}${ampm} `
 }
 
 // listen for incoming messages
@@ -65,8 +77,8 @@ onMounted(async () => {
   socket.emit('join', userName)
 
   socket.on('message', (message) => {
-    console.log(message)
-    console.log(messages.value)
+    // console.log(message)
+    // console.log(messages.value)
     messages.value.push(message)
     scrollToLastMessage()
   })
@@ -87,9 +99,10 @@ const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
     const message = {
       sender: user.userName,
-      message: newMessage.value
+      message: newMessage.value,
+      timeStamp: getCurrentTime()
     }
-    console.log(message)
+    // console.log(message)
 
     messages.value.push(message)
     noConvo.value = false
@@ -97,7 +110,7 @@ const sendMessage = () => {
     socket.emit('message', receiverName.value, message)
     // console.log(`${receiverName.value}: ${message}`);
     newMessage.value = ''
-    saveMessageToDatabase(receiverName.value, message.message)
+    saveMessageToDatabase(receiverName.value, message.message, message.timeStamp)
   }
 }
 
@@ -110,7 +123,6 @@ const typingStoped = () => {
 }
 
 let typingTimeout
-
 socket.on('isTyping', () => {
   console.log('Typing')
   isTyping.value = true
@@ -127,9 +139,9 @@ socket.on('typingStoped', () => {
   isTyping.value = false
 })
 
-const saveMessageToDatabase = async (receiver, message) => {
+const saveMessageToDatabase = async (receiver, message, timeStamp) => {
   try {
-    console.log(receiver, message)
+    console.log(receiver, message, timeStamp)
     const cookieName = 'token'
     const token = await userStore.getTokenFromCookies(cookieName)
     console.log(token)
@@ -139,7 +151,11 @@ const saveMessageToDatabase = async (receiver, message) => {
         Authorization: `Bearer ${token}`
       }
     }
-    const res = await axios.post(`${cw_endpoint}/saveMessage`, { receiver, message }, config)
+    const res = await axios.post(
+      `${cw_endpoint}/saveMessage`,
+      { receiver, message, timeStamp },
+      config
+    )
 
     if (res.status === 200) {
       popUp()
@@ -186,7 +202,6 @@ const change_hasRead_to_true = async (receiverName) => {
 </script>
 
 <template>
-  <div class="popUp" v-if="showMessage">message saved to database successfully</div>
   <div class="container">
     <div class="head">
       <i class="fa-solid fa-chevron-left pa-2" @click="router.push('/')"></i>
@@ -221,8 +236,8 @@ const change_hasRead_to_true = async (receiverName) => {
           }"
         >
           <span class="d-flex flex-column">
-            <p>{{ message.message }}</p>
-            <small>{{ message.timeStamp }}</small>
+            <p class="text">{{ message.message }}</p>
+            <small class="timeStamp">{{ message.timeStamp }}</small>
           </span>
         </div>
       </div>
@@ -342,6 +357,14 @@ const change_hasRead_to_true = async (receiverName) => {
   color: #fff;
 }
 
+.text {
+  font-size: 16.5px;
+}
+
+.timeStamp {
+  font-size: 13px;
+}
+
 .msg-block {
   display: flex;
   width: 100%;
@@ -420,3 +443,22 @@ const change_hasRead_to_true = async (receiverName) => {
   color: white;
 } */
 </style>
+
+
+
+
+
+
+
+    <!-- <div class="chat-panel" v-else>
+      <div class="no-chat-txt d-flex flex-column mt-10">
+        <span class="text-h6 font-weight-bold"
+          >start a chat with our customer service to purchase a card of your
+          choice.</span
+        >
+        <span class="text-h6 font-weight-medium"
+          >and yes fell free to ask any question concerning purchaseing a
+          membership card</span
+        >
+      </div>
+    </div>
