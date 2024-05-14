@@ -205,7 +205,9 @@ const change_hasRead_to_true = async (receiverName) => {
   <div class="container">
     <div class="head">
       <i class="fa-solid fa-chevron-left pa-2" @click="router.push('/')"></i>
-      <div class="dp"></div>
+      <div class="dp">
+        {{ receiverName.toUpperCase().slice(0, 1) }}
+      </div>
       <span class="text-white">{{ route.params.name }} </span>
       <p class="typing" v-show="isTyping">typing....</p>
     </div>
@@ -307,6 +309,12 @@ const change_hasRead_to_true = async (receiverName) => {
 }
 
 .dp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: rgb(31, 179, 2);
   width: 40px;
   aspect-ratio: 1/1;
   border-radius: 50%;
@@ -387,6 +395,12 @@ const change_hasRead_to_true = async (receiverName) => {
   margin-right: 3rem;
 }
 
+.msg_txt span small {
+  align-self: start;
+  padding-left: 0.5rem;
+  color: #dcc0c0;
+}
+
 .sender_txt {
   display: flex;
   justify-content: end;
@@ -398,6 +412,11 @@ const change_hasRead_to_true = async (receiverName) => {
   border-radius: 10px 0px 5px 10px;
   background-color: #2f5071;
   margin-left: 3rem;
+}
+
+.sender_txt span small {
+  align-self: end;
+  color: #dcc0c0;
 }
 
 .receiverName {
@@ -449,16 +468,3 @@ const change_hasRead_to_true = async (receiverName) => {
 
 
 
-
-    <!-- <div class="chat-panel" v-else>
-      <div class="no-chat-txt d-flex flex-column mt-10">
-        <span class="text-h6 font-weight-bold"
-          >start a chat with our customer service to purchase a card of your
-          choice.</span
-        >
-        <span class="text-h6 font-weight-medium"
-          >and yes fell free to ask any question concerning purchaseing a
-          membership card</span
-        >
-      </div>
-    </div>
