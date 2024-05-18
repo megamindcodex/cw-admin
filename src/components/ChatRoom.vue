@@ -1,7 +1,6 @@
 
 <script setup>
 import { nextTick, onMounted, ref, watch } from 'vue'
-import { io } from 'socket.io-client'
 import { useUserStore } from '@/stores/userStore'
 import axios from 'axios'
 import { cw_endpoint, socektIo_endpoint } from '@/constant/endpoint'
@@ -57,7 +56,7 @@ onMounted(async () => {
   user.value = userStore.user
   const userName = user.value.userName
 
-  console.log(user.value.userName)
+  // console.log(user.value.userName)
   if (!user.value) {
     console.log('user is undifined')
   }
@@ -104,8 +103,8 @@ const sendMessage = () => {
 
     messages.value.push(message)
     noConvo.value = false
-    scrollToLastMessage()
-    socket.emit('message', user.userName, receiverName.value, message, userStore.token)
+    // scrollToLastMessage()
+    socket.emit('message', receiverName.value, message)
     // console.log(`${receiverName.value}: ${message}`);
     newMessage.value = ''
     saveMessageToDatabase(receiverName.value, message.message, message.timeStamp)
@@ -122,18 +121,18 @@ const typingStoped = () => {
 
 let typingTimeout
 socket.on('isTyping', () => {
-  // console.log('Typing')
+  console.log('Typing')
   isTyping.value = true
 
   clearTimeout(typingTimeout)
   typingTimeout = setTimeout(() => {
-    // console.log('Typing stopped')
+    console.log('Typing stopped')
     isTyping.value = false
   }, 4000)
 })
 
 socket.on('typingStoped', () => {
-  // console.log('Typing stopped')
+  console.log('Typing stopped')
   isTyping.value = false
 })
 
