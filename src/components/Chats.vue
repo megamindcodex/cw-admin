@@ -3,14 +3,21 @@
 <script setup>
 import { useUserStore } from '@/stores/userStore'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const userStore = useUserStore()
 const user = userStore.user
 const noContacts = ref(false)
+const socket = userStore.socket
+const route = useRoute()
 // const contactName = ref()
+
+// console.log()
+// Function to check if the current route matches the desired pattern
 
 onMounted(async () => {
   await userStore.getConversations()
+  // console.log(userStore.conversations)
   if (userStore.conversations.length > 0) {
     noContacts.value = true
   } else {
@@ -20,17 +27,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container pt-8 px-2" v-if="noContacts">
+  <div class="container pt-8 px-1 ga-2" v-if="noContacts">
     <RouterLink
       v-for="contact in userStore.conversations"
       :key="contact._id"
       :to="`/chatRoom/${contact.users[1]}`"
-      class="pa-3 userName"
+      class="userName"
     >
       <v-card-title>
         {{ contact.users[1] }}
       </v-card-title>
-      <v-badge v-show="!contact.hasRead" inline color="green-accent-4" class="msg_badge"> </v-badge>
+      <v-badge v-show="!contact.hasRead" inline color="green-accent-3" class="msg_badge"> </v-badge>
     </RouterLink>
   </div>
   <RouterLink to="/allusers" class="new-chat pa-4 mr-5"
@@ -52,7 +59,6 @@ onMounted(async () => {
   width: 100%;
   height: 100dvh;
   display: flex;
-  row-gap: 1rem;
   flex-direction: column;
   /* background-color: red; */
 }
@@ -63,13 +69,13 @@ onMounted(async () => {
   text-decoration: none;
   color: #000;
   /* background-color: blue; */
-  border: 2px solid #000;
-  border-radius: 10px;
+  border: 1px solid #000;
+  /* border-radius: 10px; */
   transition: 0.5s ease;
 }
 
 .userName:hover {
-  border: 2px solid rgb(104, 103, 103);
+  border: 1px solid rgb(104, 103, 103);
   background: rgb(104, 103, 103);
   color: #fff;
 }
@@ -92,7 +98,8 @@ onMounted(async () => {
 
 .msg_badge {
   position: absolute;
-  top: 0.3rem;
+  top: 50%;
   right: 0;
+  transform: translate(0, -50%);
 }
 </style>

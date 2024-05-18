@@ -9,7 +9,7 @@ import { useUserStore } from '../stores/userStore'
 import { useCookieStore } from '@/stores/cookieStore'
 const route = ref(useRoute())
 const router = useRouter()
-console.log(route.value.fullPath)
+// console.log(route.value.fullPath)
 const drawer = ref(false)
 const userStore = useUserStore()
 const cookieStore = useCookieStore()
@@ -37,15 +37,15 @@ onMounted(async () => {
 
   if (result) {
     isLoggedIn.value = userStore.isLoggedIn
-    console.log(isLoggedIn.value)
+    // console.log(isLoggedIn.value)
   } else {
     isLoggedIn.value = false
-    console.log(isLoggedIn.value)
+    // console.log(isLoggedIn.value)
   }
 
   if (result) {
     token.value = result
-    console.log(result)
+    // console.log(result)
   } else {
     isLoggedIn.value = false
   }
@@ -66,7 +66,7 @@ watch(
   () => userStore.isLoggedIn,
   (newValue) => {
     isLoggedIn.value = newValue
-    console.log(isLoggedIn.value)
+    // console.log(isLoggedIn.value)
   }
 )
 

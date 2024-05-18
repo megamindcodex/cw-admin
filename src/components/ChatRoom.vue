@@ -1,6 +1,6 @@
 
 <script setup>
-import { nextTick, onMounted, ref, watch, watchEffect } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { io } from 'socket.io-client'
 import { useUserStore } from '@/stores/userStore'
 import axios from 'axios'
@@ -8,29 +8,31 @@ import { cw_endpoint, socektIo_endpoint } from '@/constant/endpoint'
 import { useRoute, useRouter } from 'vue-router'
 
 const userStore = useUserStore()
-
+const socket = userStore.socket
 const router = useRouter()
 const route = useRoute()
 const messages = ref([])
 const newMessage = ref('')
-const socket = io(socektIo_endpoint)
 const receiverName = ref(route.params.name)
 const user = ref(null)
 const showMessage = ref(false)
 const isTyping = ref(false)
 const isLoading = ref(false)
 const noConvo = ref(true)
-const hasRead = ref(false)
+const hasRead = ref(true)
 const chatPanel = ref(null)
 
+// Ensures the chat panel scrolls to the bottom after the DOM updates
 const scrollToLastMessage = () => {
   if (chatPanel.value) {
+    // nextTick ensures the callback runs after the DOM update cycle
     nextTick(() => {
       chatPanel.value.scrollTop = chatPanel.value.scrollHeight
     })
   }
 }
 
+// get current time function //
 const getCurrentTime = () => {
   const now = new Date()
   let hours = now.getHours()
@@ -62,6 +64,7 @@ onMounted(async () => {
 
   const users = ref([userName, receiverName.value])
   const conversation = await userStore.getChats(users.value)
+  // console.log(hasRead.value)
 
   if (conversation) {
     console.log(conversation.messages)
@@ -74,19 +77,14 @@ onMounted(async () => {
     isLoading.value = false
   }
 
-  socket.emit('join', userName)
-
   socket.on('message', (message) => {
     // console.log(message)
     // console.log(messages.value)
     messages.value.push(message)
     scrollToLastMessage()
+    const condition = ref(false)
   })
 })
-
-if (route.params.name === receiverName) {
-  change_hasRead_to_true(receiverName.value, userStore.userId)
-}
 
 watch(messages, () => {
   scrollToLastMessage()
@@ -107,7 +105,7 @@ const sendMessage = () => {
     messages.value.push(message)
     noConvo.value = false
     scrollToLastMessage()
-    socket.emit('message', receiverName.value, message)
+    socket.emit('message', user.userName, receiverName.value, message, userStore.token)
     // console.log(`${receiverName.value}: ${message}`);
     newMessage.value = ''
     saveMessageToDatabase(receiverName.value, message.message, message.timeStamp)
@@ -124,27 +122,27 @@ const typingStoped = () => {
 
 let typingTimeout
 socket.on('isTyping', () => {
-  console.log('Typing')
+  // console.log('Typing')
   isTyping.value = true
 
   clearTimeout(typingTimeout)
   typingTimeout = setTimeout(() => {
-    console.log('Typing stopped')
+    // console.log('Typing stopped')
     isTyping.value = false
   }, 4000)
 })
 
 socket.on('typingStoped', () => {
-  console.log('Typing stopped')
+  // console.log('Typing stopped')
   isTyping.value = false
 })
 
 const saveMessageToDatabase = async (receiver, message, timeStamp) => {
   try {
-    console.log(receiver, message, timeStamp)
+    // console.log(receiver, message, timeStamp)
     const cookieName = 'token'
     const token = await userStore.getTokenFromCookies(cookieName)
-    console.log(token)
+    // console.log(token)
 
     const config = {
       headers: {
@@ -166,38 +164,39 @@ const saveMessageToDatabase = async (receiver, message, timeStamp) => {
   }
 }
 
+// const toggle_hasRead = async (receiverName, condition, token) => {
+//   try {
+//     if (!token) {
+//       return console.log("token is Undefined");
+//     }
+
+//     const config = {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     };
+
+//     const res = await axios.put(
+//       `${cw_endpoint}/toggle_hasRead`,
+//       { receiverName, condition },
+//       config
+//     );
+
+//     if (res.status === 200) {
+//       console.log(
+//         `hasRead property for ${receiverName} is ${res.data.hasRead}`
+//       );
+//       return res.data.hasRead;
+//     }
+//   } catch (err) {
+//     console.log("Error chaning hasRead: ", err, err.message);
+//   }
+// };
+
 const popUp = () => {
   setTimeout(() => {
     showMessage.value = true
   }, 3000)
-}
-
-const change_hasRead_to_true = async (receiverName) => {
-  try {
-    // console.log(receiverName, userId)
-    const cookieName = ref('token')
-    const token = await userStore.getTokenFromCookies(cookieName.value)
-
-    if (!token) {
-      console.log('token is undefined')
-      return
-    }
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-    console.log(config)
-
-    const res = await axios.put(`${cw_endpoint}/change_hasRead_to_true`, { receiverName }, config)
-    if (res.status === 200) {
-      hasRead.value = res.data.hasRead
-      console.log(res.data.hasRead)
-    }
-  } catch (err) {
-    console.error('Error changing hasRead to true:', err, err.message)
-  }
 }
 </script>
 
