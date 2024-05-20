@@ -50,6 +50,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.name === 'chatRoom') {
     const userName = userStore.userName
+    console.log(userName)
     const condition = true
     console.log(`Previous route: ${to.name}. condition: ${condition}`)
 

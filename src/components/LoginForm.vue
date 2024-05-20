@@ -13,7 +13,7 @@ const router = useRouter()
 const cookieStore = useCookieStore()
 const userStore = useUserStore()
 
-const email = ref('management@gmail.com')
+const email = ref('Administrator001@gmail.com')
 const password = ref('')
 const visible = ref(false)
 const isLoading = ref(false)
