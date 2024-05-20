@@ -103,7 +103,7 @@ const sendMessage = () => {
 
     messages.value.push(message)
     noConvo.value = false
-    // scrollToLastMessage()
+    scrollToLastMessage()
     socket.emit('message', receiverName.value, message)
     // console.log(`${receiverName.value}: ${message}`);
     newMessage.value = ''

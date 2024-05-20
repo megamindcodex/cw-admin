@@ -71,7 +71,7 @@ router.beforeEach(async (to, from, next) => {
     if (res.status === 200) {
       // console.log(res.data)
       await userStore.getConversations()
-      next()
+      // next()
     }
   }
 })
