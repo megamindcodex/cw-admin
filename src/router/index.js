@@ -48,7 +48,33 @@ router.beforeEach(async (to, from, next) => {
 
   const previous_route = from.params.name
 
-  if (previous_route) {
+  if (to.name === 'chatRoom') {
+    const userName = userStore.userName
+    const condition = true
+    console.log(`Previous route: ${to.name}. condition: ${condition}`)
+
+    if (!token) {
+      console.error('token is undefined')
+    }
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+
+    const res = await axios.put(
+      `${cw_endpoint}/toggle_hasRead`,
+      { receiverName: userName, condition },
+      config
+    )
+
+    if (res.status === 200) {
+      await userStore.getUserData()
+    }
+  }
+
+  if (from.params.name === from.params.name) {
     console.log(`Previous route: ${previous_route}`)
     const receiverName = previous_route
     const condition = true
