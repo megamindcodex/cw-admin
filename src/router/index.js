@@ -46,13 +46,11 @@ router.beforeEach(async (to, from, next) => {
     next()
   }
 
-  const previous_route = from.params.name
-
-  if (to.name === 'chatRoom') {
-    const userName = userStore.userName
-    console.log(userName)
+  if (to.params.name === to.params.name) {
+    const route_to_visit = to.params.name
+    const receiverName = route_to_visit
     const condition = true
-    console.log(`Previous route: ${to.name}. condition: ${condition}`)
+    console.log(`route to visit: ${route_to_visit}. condition: ${condition}`)
 
     if (!token) {
       console.error('token is undefined')
@@ -64,11 +62,16 @@ router.beforeEach(async (to, from, next) => {
       }
     }
 
+    if (!route_to_visit) {
+      console.log('route to visit is undefined')
+      return
+    }
     const res = await axios.put(
       `${cw_endpoint}/toggle_hasRead`,
-      { receiverName: userName, condition },
+      { receiverName, condition },
       config
     )
+    console.log(receiverName)
 
     if (res.status === 200) {
       await userStore.getUserData()
@@ -76,9 +79,11 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (from.params.name === from.params.name) {
-    console.log(`Previous route: ${previous_route}`)
-    const receiverName = previous_route
+    const previous_route = from.params.name
+
+    const receiverName = from.params.name
     const condition = true
+    console.log(`Previous route: ${previous_route}, ${condition}`)
 
     if (!token) {
       console.error('token is undefined')
@@ -88,6 +93,11 @@ router.beforeEach(async (to, from, next) => {
       headers: {
         Authorization: `Bearer ${token}`
       }
+    }
+
+    if (!previous_route) {
+      console.log('previous route is undefined')
+      return
     }
     const res = await axios.put(
       `${cw_endpoint}/toggle_hasRead`,
