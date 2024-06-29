@@ -283,7 +283,8 @@ const popUp = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #dddddd;
+  /* background-color: #dddddd; */
+  background-color: #3c4a5c;
 }
 
 .head {
